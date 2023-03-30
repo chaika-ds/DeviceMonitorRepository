@@ -1,5 +1,6 @@
 ﻿using DevicesMonitor.Enums;
 using DevicesMonitor.Extensions;
+using System.Net;
 
 namespace DevicesMonitor.Controllers;
 
@@ -22,26 +23,27 @@ public class MonitorController
     /// <returns></returns>
     public async Task MonitorDevice(int connectTimes)
     {
-        try
+
+        using HttpClient client = new();
+        client.AdjustHttpClient(_uri);
+
+        foreach (var device in Enum.GetValues(typeof(DevicesType)))
         {
-            using HttpClient client = new();
-            client.AdjustHttpClient(_uri);
+            var deviceId = device.GetHashCode();
 
-            foreach (var device in Enum.GetValues(typeof(DevicesType)))
+            for (var i = 0; i < connectTimes; i++)
             {
-                var deviceId = device.GetHashCode();
-
-                for (var i = 0; i < connectTimes; i++)
+                try
                 {
                     var measurementData = await SendRequestToDevice(client, deviceId);
                     Console.WriteLine($"Device {device} send data: {measurementData}");
                 }
+                catch (HttpRequestException ex)
+                {
+                    Console.WriteLine($"Device {device} measurements: {ex.StatusCode}");
+                }
             }
-        }
-        catch (Exception e)
-        {
-            Console.WriteLine(e);
-            throw;
+
         }
     }
 
