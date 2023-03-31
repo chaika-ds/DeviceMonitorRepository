@@ -36,7 +36,7 @@ public class MonitorController
                 try
                 {
                     var measurementData = await SendRequestToDevice(client, deviceId);
-                    Console.WriteLine($"Device {device} send data: {measurementData}");
+                    Console.WriteLine($"Device {device} get meassurements data: {measurementData}");
                 }
                 catch (HttpRequestException ex)
                 {
